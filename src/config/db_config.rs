@@ -1,12 +1,12 @@
-use std::str::FromStr;
+use crate::common_types::{DBTransaction, ShopDB};
 use sqlx::postgres::PgConnectOptions;
-use sqlx::{ConnectOptions, PgPool, Pool};
+use sqlx::{ConnectOptions, PgPool, Postgres, Transaction};
+use std::str::FromStr;
 
 pub struct DbConfig<'a> {
     pub db_url : &'a str
 }
 
-pub type ShopDB = PgPool;
 
 pub async fn connect_to_db(db_config: DbConfig<'_>)-> anyhow::Result<ShopDB> {
     let connection_options = PgConnectOptions::from_str(db_config.db_url)
@@ -15,4 +15,9 @@ pub async fn connect_to_db(db_config: DbConfig<'_>)-> anyhow::Result<ShopDB> {
     let db = PgPool::connect_with(connection_options).await?;
     println!("db connection established!");
     Ok(db)
+}
+
+pub async fn start_transaction<'a>(db:&ShopDB) -> anyhow::Result<DBTransaction> {
+    let tx = db.begin().await?;
+    Ok(tx)
 }

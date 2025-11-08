@@ -1,5 +1,46 @@
 use chrono::{DateTime, Utc};
+use serde::Deserialize;
+use sqlx::{PgPool, Postgres, Transaction};
+use std::ops::Deref;
 
-pub type PrimaryId = u64;
+pub type PrimaryId = i64;
+
+
+
+
+// this is public facing id of our entity.
+#[derive(Clone, Debug, Deserialize, sqlx::Type)]
+pub struct PublicId (String);
+impl From<String> for PublicId {
+    fn from(value: String) -> Self {
+        PublicId(value)
+    }
+}
+
+
+
+impl Deref for PublicId {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl AsRef<str> for PublicId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+
 pub type CreatedAt = DateTime<Utc>;
 pub type UpdatedAt = DateTime<Utc>;
+
+pub type DatabaseError = sqlx::Error;
+
+pub struct Password(String);
+
+
+pub type ShopDB = PgPool;
+pub type DBTransaction =  Transaction<'static, Postgres>;

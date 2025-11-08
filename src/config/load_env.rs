@@ -1,7 +1,7 @@
 use anyhow::{Result, format_err};
 use std::env;
 
-#[derive(Clone)]
+#[derive(Clone)] // todo: can i make it not clone and still use it in app state, like it is not mutable at all.
 pub struct EnvConfig {
     pub prime_org_id: u64,
     pub debug_mode: bool,

@@ -1,4 +1,4 @@
-use crate::common_types::{CreatedAt, PrimaryId, UpdatedAt};
+use crate::common_types::{CreatedAt, PrimaryId, PublicId, UpdatedAt};
 
 #[allow(dead_code)]
 pub type UserId = PrimaryId;
@@ -12,7 +12,7 @@ pub enum UserStatus {
 #[derive(Debug, Clone)]
 pub struct UserModel {
     pub id: UserId,
-    pub public_id: String,
+    pub public_id: PublicId,
     pub first_name: String,
     pub last_name: String,
     pub email: String,

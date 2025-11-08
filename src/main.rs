@@ -1,7 +1,7 @@
 use std::env;
 use axum::Router;
 use super_shop_backend::{AppState, DbConfig};
-use crate::routes::item::user_routes;
+use crate::routes::user_route::user_routes;
 
 mod routes;
 mod handlers;
@@ -20,10 +20,10 @@ async fn main() {
     let app_state = AppState::init(db_config).await;
 
     let app = Router::new()
-        .with_state(app_state)
-        .nest("/items", user_routes());
+        .nest("/api/users", user_routes())
+        .with_state(app_state);
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:5020").await.unwrap();
 
     axum::serve(listener, app).await.unwrap();
 

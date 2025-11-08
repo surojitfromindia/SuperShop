@@ -47,3 +47,17 @@ pub use  config::app_state::{
 pub use config::db_config::{
     DbConfig,
 };
+
+
+
+pub use services::{
+    user_service::UserService,
+};
+
+
+pub mod types {
+    pub use crate::repository_traits::user_repository_trait::{CreatedUser};
+    pub use crate::services::user_service::{
+        RegisterUser
+    };
+}
