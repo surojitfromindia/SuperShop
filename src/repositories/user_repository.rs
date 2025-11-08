@@ -3,6 +3,7 @@ use crate::models::user_model::{UserId, UserModel};
 use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, UserRepositoryTrait};
 use async_trait::async_trait;
 use sqlx::Row;
+use crate::config::db_config::start_transaction;
 
 pub struct UserRepository {
     shop_db: ShopDB,
@@ -18,7 +19,7 @@ impl UserRepository {
 impl UserRepositoryTrait for UserRepository {
     async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser> {
         // start the transaction.
-        let mut tx2 = self.shop_db.begin().await?;
+        let mut tx2 = start_transaction(&self.shop_db).await?;
 
         let email = user.email;
 

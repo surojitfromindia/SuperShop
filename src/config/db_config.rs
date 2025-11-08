@@ -1,6 +1,6 @@
 use crate::common_types::{DBTransaction, ShopDB};
 use sqlx::postgres::PgConnectOptions;
-use sqlx::{ConnectOptions, PgPool, Postgres, Transaction};
+use sqlx::{ConnectOptions, PgPool};
 use std::str::FromStr;
 
 pub struct DbConfig<'a> {
