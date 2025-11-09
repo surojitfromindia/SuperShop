@@ -1,6 +1,7 @@
 use std::env;
 use axum::Router;
 use super_shop_backend::{AppState, DbConfig};
+use crate::routes::auth_route::auth_routes;
 use crate::routes::user_route::user_routes;
 
 mod routes;
@@ -21,6 +22,7 @@ async fn main() {
 
     let app = Router::new()
         .nest("/api/users", user_routes())
+        .nest("/api/auth", auth_routes())
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:5020").await.unwrap();

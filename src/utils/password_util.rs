@@ -10,7 +10,8 @@ pub enum HashedPasswordGenerationError{
     HashingFailed(String),
 }
 
-
+#[derive(sqlx::Type)]
+#[sqlx(transparent)]
 pub struct PlainPassword(String);
 
 impl PlainPassword {
@@ -21,6 +22,8 @@ impl PlainPassword {
     }
 }
 
+#[derive(Clone, Debug, sqlx::Type)]
+#[sqlx(transparent)]
 pub struct HashedPassword(String);
 
 impl TryFrom<PlainPassword> for  HashedPassword {
@@ -33,7 +36,7 @@ impl TryFrom<PlainPassword> for  HashedPassword {
             return Err(HashedPasswordGenerationError::EmptyPassword);
         }
 
-        let hashed_password =  hash(value.0, DEFAULT_COST+2);
+        let hashed_password =  hash(value.0, 8);
         match hashed_password {
             Ok(hp) => Ok(HashedPassword(hp)),
             Err(e) => Err(HashedPasswordGenerationError::HashingFailed(e.to_string())),

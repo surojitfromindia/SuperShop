@@ -5,6 +5,7 @@ use std::env;
 pub struct EnvConfig {
     pub prime_org_id: u64,
     pub debug_mode: bool,
+    pub jwt_secret: String,
 }
 
 fn get_env_var(name: &str) -> Result<String> {
@@ -30,6 +31,7 @@ pub fn load_env() -> Result<EnvConfig> {
     let env_config =EnvConfig {
         prime_org_id: get_env_u64("PRIME_ORG_ID")?,
         debug_mode: get_env_bool("DEBUG_MODE")?,
+        jwt_secret : get_env_var("JWT_SECRET")?,
     };
     println!("env loaded");
     Ok(env_config)

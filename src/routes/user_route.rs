@@ -11,5 +11,5 @@ pub fn user_routes() -> Router<AppState> {
 }
 
 async fn health_check() -> String {
-    "Item routes are healthy".to_string()
+    "User routes are healthy".to_string()
 }

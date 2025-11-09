@@ -1,4 +1,3 @@
-
 /*
 config:
 ---------------
@@ -29,50 +28,31 @@ input/output struct into the service. this struct will be exposed to
 external handlers to implement to and form.
  */
 
-
 mod common_types;
 
 mod config;
 mod models;
-mod repository_traits;
 mod repositories;
-mod services;
+mod repository_traits;
 mod schemas;
+mod services;
 
 mod utils;
 
+pub use config::app_state::AppState;
 
-pub use  config::app_state::{
-    AppState
-};
+pub use config::db_config::DbConfig;
 
-pub use config::db_config::{
-    DbConfig,
-};
-
-
-
-pub use services::{
-    user_service::UserService,
-};
-
+pub use services::user_service::UserService;
 
 pub mod types {
-    pub use crate::common_types::{
-      PublicId,
-      PrimaryId,
-    };
-    pub use crate::services::user_service::{
-        RegisterUserInput,
-        RegisterUserOutput,
-    };
-    pub use crate::utils::password_util :: {
-        PlainPassword,
-    };
+    pub use crate::common_types::{PrimaryId, PublicId};
+    pub use crate::services::user_service::{RegisterUserInput, RegisterUserOutput};
+    pub use crate::services::auth_service::{UserLoginError, UserLoginInput, UserLoginOutput};
+    pub use crate::utils::password_util::PlainPassword;
 }
 
 pub mod errors {
-    pub use crate::services::user_service::{
-        RegisterUserError,
-    };
+    pub use crate::services::auth_service::AuthService;
+    pub use crate::services::user_service::RegisterUserError;
 }

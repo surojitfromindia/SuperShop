@@ -12,12 +12,13 @@ pub type PrimaryId = i64;
 #[derive(Clone, Debug, Deserialize, sqlx::Type)]
 #[sqlx(transparent)]
 pub struct PublicId (String);
+
+
 impl From<String> for PublicId {
     fn from(value: String) -> Self {
         PublicId(value)
     }
 }
-
 
 impl Deref for PublicId {
     type Target = String;
@@ -29,6 +30,12 @@ impl Deref for PublicId {
 impl AsRef<str> for PublicId {
     fn as_ref(&self) -> &str {
         &self.0
+    }
+}
+
+impl Into<String> for PublicId {
+    fn into(self) -> String {
+        self.0
     }
 }
 

@@ -4,9 +4,10 @@ use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, User
 use async_trait::async_trait;
 use sqlx::Row;
 use crate::config::db_config::start_transaction;
+use crate::models::user_credential_model::UserCredentialModel;
 
 pub struct UserRepository {
-    shop_db: ShopDB,
+    pub(crate) shop_db: ShopDB,
 }
 
 impl UserRepository {
@@ -46,11 +47,11 @@ impl UserRepositoryTrait for UserRepository {
         Ok(CreatedUser { email, public_id })
     }
 
-    async fn get_user_by_id(&self) -> anyhow::Result<UserModel,DatabaseError> {
+    async fn get_user_by_id(&self, user_id: &UserId ) -> anyhow::Result<Option<UserModel>,DatabaseError> {
         unimplemented!()
     }
 
-    async fn get_user_by_public_id(&self) -> anyhow::Result<UserModel,DatabaseError> {
+    async fn get_user_by_public_id(&self,public_id: &PublicId ) -> anyhow::Result<Option<UserModel>,DatabaseError> {
         unimplemented!()
     }
 
@@ -59,5 +60,12 @@ impl UserRepositoryTrait for UserRepository {
             .bind(email)
             .fetch_optional(&self.shop_db).await?;
         Ok(user)
+    }
+
+    async fn get_user_credentials_by_id(&self, user_id: &UserId) -> anyhow::Result<Option<UserCredentialModel>, DatabaseError> {
+        let user_credential: Option<UserCredentialModel> = sqlx::query_as("select * from user_credentials where user_id =$1")
+            .bind(user_id)
+            .fetch_optional(&self.shop_db).await?;
+        Ok(user_credential)
     }
 }

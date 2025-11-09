@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use crate::AppState;
 use thiserror::Error;
+use crate::repositories::user_repository::UserRepository;
 use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, UserRepositoryTrait};
 use crate::utils::password_util::{HashedPassword, HashedPasswordGenerationError, PlainPassword};
 
@@ -41,32 +42,33 @@ pub struct UserService {
 impl UserService {
     pub async fn register_user(
         &self,
-        user: RegisterUserInput,
+        register_user_input: RegisterUserInput,
     ) -> anyhow::Result<RegisterUserOutput, RegisterUserError> {
         let app_state = &self.app_state;
+        
+        let user_repository = UserRepository {
+            shop_db : app_state.shop_db.clone(),
+        };
 
-        let existing_user = app_state
-            .repositories
-            .user_repository
-            .get_user_by_email(&user.email)
+        let existing_user = 
+            user_repository
+            .get_user_by_email(&register_user_input.email)
             .await
             .map_err(|e| RegisterUserError::DatabaseError(e.to_string()))?;
 
         if existing_user.is_some() {
-            return Err(RegisterUserError::DuplicateEmail(user.email));
+            return Err(RegisterUserError::DuplicateEmail(register_user_input.email));
         }
 
-        let hash_password = HashedPassword::try_from(user.password)?;
+        let hash_password = HashedPassword::try_from(register_user_input.password)?;
         let new_user = NewUser {
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone: user.phone,
+            email: register_user_input.email,
+            first_name: register_user_input.first_name,
+            last_name: register_user_input.last_name,
+            phone: register_user_input.phone,
             hashed_password: hash_password.to_string(),
         };
-        self.app_state
-            .repositories
-            .user_repository
+        user_repository
             .create_user(new_user)
             .await
             .map_err(|e| RegisterUserError::DatabaseError(e.to_string()))

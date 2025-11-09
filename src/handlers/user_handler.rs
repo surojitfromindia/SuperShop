@@ -13,5 +13,5 @@ pub async fn register_user_handler(
         .await
         .map_err(RegisterUserHttpError)?;
 
-    Ok(Json(From::from(user)))
+    Ok(Json(user.into()))
 }

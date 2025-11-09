@@ -1,18 +1,13 @@
+use crate::common_types::ShopDB;
 use crate::config::db_config::{connect_to_db, DbConfig};
 use crate::config::load_env::{load_env, EnvConfig};
-use crate::repositories::user_repository::UserRepository;
 use std::process::exit;
-use std::sync::Arc;
 
-pub struct Repositories {
-    pub user_repository: UserRepository,
-}
 
 #[derive(Clone)]
 pub struct AppState {
-    // pub shop_db: ShopDB,
+    pub shop_db: ShopDB,
     pub env_config: EnvConfig,
-    pub repositories: Arc<Repositories>,
 }
 
 impl AppState {
@@ -28,13 +23,10 @@ impl AppState {
             exit(1);
         });
 
-        let user_repository = UserRepository::new(shop_db.clone());
 
-        // later store user repository.
         AppState {
-            // shop_db,
+            shop_db,
             env_config,
-            repositories: Arc::new(Repositories { user_repository }),
         }
     }
 }

@@ -4,6 +4,7 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use super_shop_backend::errors::RegisterUserError;
 use super_shop_backend::types::{PlainPassword, RegisterUserInput, RegisterUserOutput};
+use crate::dto::common::ErrorResponse;
 
 #[derive(Deserialize)]
 pub struct RegisterUserPayload {
@@ -41,11 +42,6 @@ impl From<RegisterUserOutput> for RegisterUserResponse {
     }
 }
 
-#[derive(Debug, Serialize)]
-struct ErrorResponse {
-    error: String,
-    message: String,
-}
 
 pub struct RegisterUserHttpError(pub RegisterUserError);
 
