@@ -1,4 +1,3 @@
-use crate::common_types::ShopDB;
 use crate::config::db_config::{connect_to_db, DbConfig};
 use crate::config::load_env::{load_env, EnvConfig};
 use crate::repositories::user_repository::UserRepository;

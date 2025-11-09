@@ -1,8 +1,7 @@
+use crate::common_types::{DatabaseError, PublicId};
+use crate::models::user_model::UserModel;
 use async_trait::async_trait;
 use serde::Deserialize;
-use crate::common_types::{Password, PublicId};
-use crate::models::user_model::UserModel;
-
 
 
 // what should be the name of this struct?
@@ -22,8 +21,8 @@ pub struct CreatedUser {
 
 #[async_trait]
 pub trait  UserRepositoryTrait: Send + Sync {
-    async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser>;
-    async fn get_user_by_id(&self,)-> anyhow::Result<UserModel>;
-    async fn get_user_by_public_id(&self,)-> anyhow::Result<UserModel>;
-    async fn get_user_by_email(&self,)-> anyhow::Result<UserModel>;
+    async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser, DatabaseError>;
+    async fn get_user_by_id(&self,)-> anyhow::Result<UserModel,DatabaseError>;
+    async fn get_user_by_public_id(&self,)-> anyhow::Result<UserModel,DatabaseError>;
+    async fn get_user_by_email(&self, email : &String)-> anyhow::Result<Option<UserModel>,DatabaseError>;
 }

@@ -1,4 +1,4 @@
-use crate::common_types::{PublicId, ShopDB};
+use crate::common_types::{DatabaseError, PublicId, ShopDB};
 use crate::models::user_model::{UserId, UserModel};
 use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, UserRepositoryTrait};
 use async_trait::async_trait;
@@ -17,7 +17,7 @@ impl UserRepository {
 
 #[async_trait]
 impl UserRepositoryTrait for UserRepository {
-    async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser> {
+    async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser,DatabaseError> {
         // start the transaction.
         let mut tx2 = start_transaction(&self.shop_db).await?;
 
@@ -46,15 +46,18 @@ impl UserRepositoryTrait for UserRepository {
         Ok(CreatedUser { email, public_id })
     }
 
-    async fn get_user_by_id(&self) -> anyhow::Result<UserModel> {
+    async fn get_user_by_id(&self) -> anyhow::Result<UserModel,DatabaseError> {
         unimplemented!()
     }
 
-    async fn get_user_by_public_id(&self) -> anyhow::Result<UserModel> {
+    async fn get_user_by_public_id(&self) -> anyhow::Result<UserModel,DatabaseError> {
         unimplemented!()
     }
 
-    async fn get_user_by_email(&self) -> anyhow::Result<UserModel> {
-        unimplemented!()
+    async fn get_user_by_email(&self, email : &String) -> anyhow::Result<Option<UserModel>, DatabaseError> {
+        let user: Option<UserModel> = sqlx::query_as("select * from users where email = $1")
+            .bind(email)
+            .fetch_optional(&self.shop_db).await?;
+        Ok(user)
     }
 }

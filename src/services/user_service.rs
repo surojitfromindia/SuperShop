@@ -1,12 +1,31 @@
+use serde::Deserialize;
 use crate::AppState;
+use thiserror::Error;
 use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, UserRepositoryTrait};
 
-pub struct RegisterUser {
+pub struct RegisterUserInput {
     pub first_name: String,
     pub last_name: String,
     pub email: String,
     pub password: String,
     pub phone: Option<String>,
+}
+pub type RegisterUserOutput = CreatedUser;
+
+#[derive(Deserialize,Debug,Error)]
+#[non_exhaustive]
+pub enum RegisterUserError {
+    #[error("database error: {0}")]
+    DatabaseError(String),
+
+    #[error("user with this email already exists: {0}")]
+    DuplicateEmail(String),
+
+    #[error("invalid user data: {0}")]
+    ValidationError(String),
+
+    #[error("unexpected error: {0}")]
+    Unexpected(String),
 }
 
 pub struct UserService {
@@ -15,8 +34,23 @@ pub struct UserService {
 
 // todo: some controller errors will be thrown from particular services;
 impl UserService {
-    pub async fn register_user(&self, user: RegisterUser) -> CreatedUser {
-        // todo: hash the password
+    pub async fn register_user(
+        &self,
+        user: RegisterUserInput,
+    ) -> anyhow::Result<RegisterUserOutput, RegisterUserError> {
+        let app_state = &self.app_state;
+
+        let existing_user = app_state
+            .repositories
+            .user_repository
+            .get_user_by_email(&user.email)
+            .await
+            .map_err(|e| RegisterUserError::DatabaseError(e.to_string()))?;
+
+        if existing_user.is_some() {
+            return Err(RegisterUserError::DuplicateEmail(user.email));
+        }
+
         let hash_password = user.password;
         let new_user = NewUser {
             email: user.email,
@@ -30,6 +64,6 @@ impl UserService {
             .user_repository
             .create_user(new_user)
             .await
-            .unwrap()
+            .map_err(|e| RegisterUserError::DatabaseError(e.to_string()))
     }
 }

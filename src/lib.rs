@@ -56,8 +56,18 @@ pub use services::{
 
 
 pub mod types {
-    pub use crate::repository_traits::user_repository_trait::{CreatedUser};
+    pub use crate::common_types::{
+      PublicId,
+      PrimaryId,
+    };
     pub use crate::services::user_service::{
-        RegisterUser
+        RegisterUserInput,
+        RegisterUserOutput,
+    };
+}
+
+pub mod errors {
+    pub use crate::services::user_service::{
+        RegisterUserError,
     };
 }

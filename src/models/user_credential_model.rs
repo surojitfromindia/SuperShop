@@ -1,4 +1,4 @@
-use crate::common_types::{CreatedAt, PublicId, UpdatedAt};
+use crate::common_types::{CreatedAt, UpdatedAt};
 use crate::models::user_model::UserId;
 
 #[derive(Debug, Clone)]

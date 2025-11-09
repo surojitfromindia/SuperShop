@@ -3,13 +3,14 @@ use crate::common_types::{CreatedAt, PrimaryId, PublicId, UpdatedAt};
 #[allow(dead_code)]
 pub type UserId = PrimaryId;
 
-#[derive(Debug,Clone)]
+#[derive(Debug,Clone,sqlx::Type )]
+#[sqlx(type_name = "user_status", rename_all = "snake_case")]
 pub enum UserStatus {
     Active,
     Deleted,
     Suspended,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, sqlx::FromRow)]
 pub struct UserModel {
     pub id: UserId,
     pub public_id: PublicId,

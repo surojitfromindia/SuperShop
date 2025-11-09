@@ -1,4 +1,4 @@
-use crate::common_types::{DBTransaction, ShopDB};
+use crate::common_types::{DBTransaction, DatabaseError, ShopDB};
 use sqlx::postgres::PgConnectOptions;
 use sqlx::{ConnectOptions, PgPool};
 use std::str::FromStr;
@@ -17,7 +17,7 @@ pub async fn connect_to_db(db_config: DbConfig<'_>)-> anyhow::Result<ShopDB> {
     Ok(db)
 }
 
-pub async fn start_transaction<'a>(db:&ShopDB) -> anyhow::Result<DBTransaction> {
+pub async fn start_transaction<'a>(db:&ShopDB) -> anyhow::Result<DBTransaction,DatabaseError> {
     let tx = db.begin().await?;
     Ok(tx)
 }

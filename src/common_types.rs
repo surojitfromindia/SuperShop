@@ -10,6 +10,7 @@ pub type PrimaryId = i64;
 
 // this is public facing id of our entity.
 #[derive(Clone, Debug, Deserialize, sqlx::Type)]
+#[sqlx(transparent)]
 pub struct PublicId (String);
 impl From<String> for PublicId {
     fn from(value: String) -> Self {
@@ -18,10 +19,8 @@ impl From<String> for PublicId {
 }
 
 
-
 impl Deref for PublicId {
     type Target = String;
-
     fn deref(&self) -> &Self::Target {
         &self.0
     }
@@ -36,6 +35,7 @@ impl AsRef<str> for PublicId {
 
 pub type CreatedAt = DateTime<Utc>;
 pub type UpdatedAt = DateTime<Utc>;
+
 
 pub type DatabaseError = sqlx::Error;
 
