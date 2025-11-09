@@ -2,12 +2,13 @@ use serde::Deserialize;
 use crate::AppState;
 use thiserror::Error;
 use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, UserRepositoryTrait};
+use crate::utils::password_util::{HashedPassword, HashedPasswordGenerationError, PlainPassword};
 
 pub struct RegisterUserInput {
     pub first_name: String,
     pub last_name: String,
     pub email: String,
-    pub password: String,
+    pub password: PlainPassword,
     pub phone: Option<String>,
 }
 pub type RegisterUserOutput = CreatedUser;
@@ -20,12 +21,16 @@ pub enum RegisterUserError {
 
     #[error("user with this email already exists: {0}")]
     DuplicateEmail(String),
-
+    
     #[error("invalid user data: {0}")]
     ValidationError(String),
 
     #[error("unexpected error: {0}")]
     Unexpected(String),
+    
+    #[error("password error: {0}")]
+    PasswordError(#[from] HashedPasswordGenerationError),
+
 }
 
 pub struct UserService {
@@ -51,13 +56,13 @@ impl UserService {
             return Err(RegisterUserError::DuplicateEmail(user.email));
         }
 
-        let hash_password = user.password;
+        let hash_password = HashedPassword::try_from(user.password)?;
         let new_user = NewUser {
             email: user.email,
             first_name: user.first_name,
             last_name: user.last_name,
             phone: user.phone,
-            hash_password,
+            hashed_password: hash_password.to_string(),
         };
         self.app_state
             .repositories

@@ -10,7 +10,7 @@ pub struct NewUser {
     pub first_name: String,
     pub last_name: String,
     pub phone: Option<String>,
-    pub hash_password: String,
+    pub hashed_password: String,
 }
 
 #[derive(Deserialize, Debug)]

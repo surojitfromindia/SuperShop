@@ -1,0 +1,1 @@
+alter table user_credentials  rename hash_password to hashed_password;

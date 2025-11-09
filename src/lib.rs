@@ -39,6 +39,8 @@ mod repositories;
 mod services;
 mod schemas;
 
+mod utils;
+
 
 pub use  config::app_state::{
     AppState
@@ -63,6 +65,9 @@ pub mod types {
     pub use crate::services::user_service::{
         RegisterUserInput,
         RegisterUserOutput,
+    };
+    pub use crate::utils::password_util :: {
+        PlainPassword,
     };
 }
 

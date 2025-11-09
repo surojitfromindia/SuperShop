@@ -19,7 +19,7 @@ impl UserRepository {
 impl UserRepositoryTrait for UserRepository {
     async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser,DatabaseError> {
         // start the transaction.
-        let mut tx2 = start_transaction(&self.shop_db).await?;
+        let mut tx = start_transaction(&self.shop_db).await?;
 
         let email = user.email;
 
@@ -30,18 +30,18 @@ impl UserRepositoryTrait for UserRepository {
             .bind(user.last_name)
             .bind(email.clone())
             .bind(user.phone)
-        .fetch_one(tx2.as_mut())
+        .fetch_one(tx.as_mut())
         .await?;
         let user_id: UserId = created_user.get::<i64, _>("id") as UserId;
         let public_id = PublicId::from(created_user.get::<String, _>("public_id"));
 
         // store the user credentials.
-        sqlx::query("insert  into user_credentials (user_id, hash_password) values ($1, $2)")
+        sqlx::query("insert  into user_credentials (user_id, hashed_password) values ($1, $2)")
             .bind(user_id)
-            .bind(user.hash_password)
-            .execute(tx2.as_mut())
+            .bind(user.hashed_password)
+            .execute(tx.as_mut())
             .await?;
-        tx2.commit().await?;
+        tx.commit().await?;
 
         Ok(CreatedUser { email, public_id })
     }
