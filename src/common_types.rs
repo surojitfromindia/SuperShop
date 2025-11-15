@@ -5,13 +5,14 @@ use std::ops::Deref;
 
 pub type PrimaryId = i64;
 
-
+pub type OrganizationId = PrimaryId;
+pub type UserId = i64;
 
 
 // this is public facing id of our entity.
 #[derive(Clone, Debug, Deserialize, sqlx::Type)]
 #[sqlx(transparent)]
-pub struct PublicId (String);
+pub struct PublicId(String);
 
 
 impl From<String> for PublicId {
@@ -50,4 +51,4 @@ pub struct Password(String);
 
 
 pub type ShopDB = PgPool;
-pub type DBTransaction =  Transaction<'static, Postgres>;
+pub type DBTransaction = Transaction<'static, Postgres>;

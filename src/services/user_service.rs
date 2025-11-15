@@ -1,9 +1,9 @@
-use serde::Deserialize;
 use crate::AppState;
-use thiserror::Error;
 use crate::repositories::user_repository::UserRepository;
 use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, UserRepositoryTrait};
 use crate::utils::password_util::{HashedPassword, HashedPasswordGenerationError, PlainPassword};
+use serde::Deserialize;
+use thiserror::Error;
 
 pub struct RegisterUserInput {
     pub first_name: String,
@@ -14,7 +14,7 @@ pub struct RegisterUserInput {
 }
 pub type RegisterUserOutput = CreatedUser;
 
-#[derive(Deserialize,Debug,Error)]
+#[derive(Deserialize, Debug, Error)]
 #[non_exhaustive]
 pub enum RegisterUserError {
     #[error("database error: {0}")]
@@ -22,16 +22,15 @@ pub enum RegisterUserError {
 
     #[error("user with this email already exists: {0}")]
     DuplicateEmail(String),
-    
+
     #[error("invalid user data: {0}")]
     ValidationError(String),
 
     #[error("unexpected error: {0}")]
     Unexpected(String),
-    
+
     #[error("password error: {0}")]
     PasswordError(#[from] HashedPasswordGenerationError),
-
 }
 
 pub struct UserService {
@@ -45,19 +44,18 @@ impl UserService {
         register_user_input: RegisterUserInput,
     ) -> anyhow::Result<RegisterUserOutput, RegisterUserError> {
         let app_state = &self.app_state;
-        
+
         let user_repository = UserRepository {
-            shop_db : app_state.shop_db.clone(),
+            shop_db: app_state.shop_db.clone(),
         };
 
-        let existing_user = 
-            user_repository
+        let existing_user = user_repository
             .get_user_by_email(&register_user_input.email)
             .await
             .map_err(|e| RegisterUserError::DatabaseError(e.to_string()))?;
 
-        if existing_user.is_some() {
-            return Err(RegisterUserError::DuplicateEmail(register_user_input.email));
+        if let Some(user) = existing_user {
+            return Err(RegisterUserError::DuplicateEmail(user.email));
         }
 
         let hash_password = HashedPassword::try_from(register_user_input.password)?;

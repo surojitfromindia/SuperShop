@@ -1,9 +1,9 @@
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{hash, verify};
 use serde::Deserialize;
 use thiserror::Error;
 
 #[derive(Debug, Error, Deserialize)]
-pub enum HashedPasswordGenerationError{
+pub enum HashedPasswordGenerationError {
     #[error("empty password")]
     EmptyPassword,
     #[error("hashing failed: {0}")]
@@ -15,7 +15,7 @@ pub enum HashedPasswordGenerationError{
 pub struct PlainPassword(String);
 
 impl PlainPassword {
-    pub fn new(value: String)->Self {
+    pub fn new(value: String) -> Self {
         PlainPassword {
             0: value
         }
@@ -26,17 +26,17 @@ impl PlainPassword {
 #[sqlx(transparent)]
 pub struct HashedPassword(String);
 
-impl TryFrom<PlainPassword> for  HashedPassword {
+impl TryFrom<PlainPassword> for HashedPassword {
     type Error = HashedPasswordGenerationError;
 
     fn try_from(value: PlainPassword) -> Result<Self, Self::Error> {
         // if the plain text password is empty.
         let trimmed_password = value.0.trim();
-        if  trimmed_password.is_empty(){
+        if trimmed_password.is_empty() {
             return Err(HashedPasswordGenerationError::EmptyPassword);
         }
 
-        let hashed_password =  hash(value.0, 8);
+        let hashed_password = hash(value.0, 8);
         match hashed_password {
             Ok(hp) => Ok(HashedPassword(hp)),
             Err(e) => Err(HashedPasswordGenerationError::HashingFailed(e.to_string())),
@@ -49,7 +49,7 @@ impl HashedPassword {
         verify(&plain_password.0, &self.0).unwrap_or(false)
     }
 
-    pub fn to_string(self)-> String{
+    pub fn to_string(self) -> String {
         self.0
     }
 }
@@ -75,6 +75,5 @@ mod tests {
         let plain_password = PlainPassword::new("".to_string());
         let hashed_password = HashedPassword::try_from(plain_password);
         assert!(hashed_password.is_err());
-
     }
 }

@@ -1,11 +1,10 @@
-use std::time::Instant;
 use crate::AppState;
 use crate::models::user_model::UserModel;
+use crate::repositories::user_repository::UserRepository;
 use crate::repository_traits::user_repository_trait::UserRepositoryTrait;
 use crate::types::{PlainPassword, PublicId};
 use crate::utils::token::{Token, TokenType};
 use thiserror::Error;
-use crate::repositories::user_repository::UserRepository;
 
 pub struct UserLoginInput {
     pub email: String,
@@ -37,12 +36,9 @@ impl AuthService {
         &self,
         user_login_input: UserLoginInput,
     ) -> anyhow::Result<UserLoginOutput, UserLoginError> {
-
         let user_repository = UserRepository {
-            shop_db : self.app_state.shop_db.clone(),
+            shop_db: self.app_state.shop_db.clone(),
         };
-
-
 
         // find user by email
         let user = user_repository
@@ -67,7 +63,6 @@ impl AuthService {
         if !hashed_password.verify(&user_login_input.password) {
             return Err(UserLoginError::InvalidPassword);
         }
-
 
         // generate token.
         let token = Token::new(
