@@ -18,7 +18,7 @@ impl UserRepository {
 
 #[async_trait]
 impl UserRepositoryTrait for UserRepository {
-    async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser,DatabaseError> {
+    async fn create_user(&self, user: NewUser) -> anyhow::Result<CreatedUser, DatabaseError> {
         // start the transaction.
         let mut tx = start_transaction(&self.shop_db).await?;
 
@@ -31,8 +31,8 @@ impl UserRepositoryTrait for UserRepository {
             .bind(user.last_name)
             .bind(email.clone())
             .bind(user.phone)
-        .fetch_one(tx.as_mut())
-        .await?;
+            .fetch_one(tx.as_mut())
+            .await?;
         let user_id: UserId = created_user.get::<i64, _>("id") as UserId;
         let public_id = PublicId::from(created_user.get::<String, _>("public_id"));
 
@@ -47,15 +47,18 @@ impl UserRepositoryTrait for UserRepository {
         Ok(CreatedUser { email, public_id })
     }
 
-    async fn get_user_by_id(&self, user_id: &UserId ) -> anyhow::Result<Option<UserModel>,DatabaseError> {
+    async fn get_user_by_id(&self, user_id: &UserId) -> anyhow::Result<Option<UserModel>, DatabaseError> {
         unimplemented!()
     }
 
-    async fn get_user_by_public_id(&self,public_id: &PublicId ) -> anyhow::Result<Option<UserModel>,DatabaseError> {
-        unimplemented!()
+    async fn get_user_by_public_id(&self, public_id: &PublicId) -> anyhow::Result<Option<UserModel>, DatabaseError> {
+        let user: Option<UserModel> = sqlx::query_as("select * from users where public_id = $1")
+            .bind(public_id)
+            .fetch_optional(&self.shop_db).await?;
+        Ok(user)
     }
 
-    async fn get_user_by_email(&self, email : &String) -> anyhow::Result<Option<UserModel>, DatabaseError> {
+    async fn get_user_by_email(&self, email: &String) -> anyhow::Result<Option<UserModel>, DatabaseError> {
         let user: Option<UserModel> = sqlx::query_as("select * from users where email = $1")
             .bind(email)
             .fetch_optional(&self.shop_db).await?;

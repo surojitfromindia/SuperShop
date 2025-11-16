@@ -52,7 +52,7 @@ pub struct Password(String);
 
 
 pub type ShopDB = PgPool;
-pub type DBTransaction = Transaction<'static, Postgres>;
+pub type DBTransaction<'a> = Transaction<'a, Postgres>;
 
 
 

@@ -29,12 +29,11 @@ pub enum UserLoginError {
     TokenError(TokenGenerationError),
 }
 
-
+#[derive(Debug)]
 pub struct UserAccessContext {
-    pub email : String,
-    pub id : UserId,
+    pub email: String,
+    pub id: UserId,
 }
-
 
 
 pub struct AuthService {
@@ -79,13 +78,13 @@ impl AuthService {
             &TokenType::AccessToken,
             &self.app_state.env_config,
         )
-        .map_err(|e| UserLoginError::TokenError(e))?;
+            .map_err(|e| UserLoginError::TokenError(e))?;
 
         Ok(UserLoginOutput { token, public_id })
     }
 
 
-    pub async fn get_user_for_access_context(&self, public_id: PublicId)->anyhow::Result<Option<UserAccessContext>> {
+    pub async fn get_user_for_access_context(&self, public_id: &PublicId) -> anyhow::Result<Option<UserAccessContext>> {
         let user_repository = UserRepository {
             shop_db: self.app_state.shop_db.clone(),
         };

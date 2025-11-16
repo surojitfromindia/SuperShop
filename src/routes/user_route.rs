@@ -5,8 +5,8 @@ use super_shop_backend::AppState;
 
 pub fn user_routes() -> Router<AppState> {
     let router = Router::new()
-        .route("/",post(register_user_handler))
-        .route("/", get(health_check));
+        .route("/health", get(health_check))
+        .route("/", post(register_user_handler));
     router
 }
 

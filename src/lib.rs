@@ -41,6 +41,11 @@ mod utils;
 
 pub use config::app_state::AppState;
 
+pub use config::auth_state::{
+    AccessContext,
+    AuthContextInput,
+};
+
 pub use config::db_config::DbConfig;
 
 pub use services::user_service::UserService;

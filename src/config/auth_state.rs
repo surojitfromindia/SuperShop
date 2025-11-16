@@ -1,9 +1,10 @@
 use crate::common_types::{OrganizationId, UserId};
+use crate::errors::AuthService;
+use crate::services::auth_service::UserAccessContext;
 use crate::types::PublicId;
 use crate::utils::token::{Token, TokenVerificationError};
 use crate::{AppState, UserService};
-use crate::errors::AuthService;
-use crate::services::auth_service::UserAccessContext;
+#[derive(Debug)]
 
 enum AppAccessMode {
     APP,
@@ -11,68 +12,62 @@ enum AppAccessMode {
     CHRON,
 }
 
-struct AuthContextInput {
-    token: String,
-    app_state: AppState,
+pub struct AuthContextInput {
+    pub token: String,
+    pub app_state: AppState,
 }
+
+#[derive(Debug)]
 struct AuthContext {
+    token: String,
     access_mode: AppAccessMode,
     public_user_id: Option<PublicId>,
     app_id: Option<String>,
 }
 
-
-enum AuthContextInputError {
-    AuthenticationFailed(String),
-    TokenError(TokenVerificationError),
+#[derive(Debug)]
+pub struct AccessContext {
+    auth_context: AuthContext,
+    // this context will only available if caller of this api is a human
+    user_access_context: Option<UserAccessContext>,
 }
 
-// AuthContext need to be created by the handles and to be passed in service.
-impl AuthContext {
-    pub async fn init(inp: AuthContextInput) -> Result<Self, AuthContextInputError> {
-        // note: no invalid user state error should be thrown after this function exit.
+impl AccessContext {
+    pub async fn init(inp: AuthContextInput, app_state: AppState) -> anyhow::Result<AccessContext> {
+        let AuthContextInput { token, .. } = inp;
 
         // verify token.
-        let claims =  Token::verify(&inp.token, &inp.app_state.env_config)
-            .map_err(|e| AuthContextInputError::TokenError(e))?;
+        let claims = Token::verify(&token, &inp.app_state.env_config)?;
+        // todo: later we may not have user_id in claims
+        let public_user_id: Option<PublicId> = Some(claims.user_id.into());
 
-        let pubic_user_id_from_token : PublicId = claims.user_id.try_into().expect("invalid public user id");
-
-        Ok(AuthContext {
-            access_mode: AppAccessMode::USER,
-            public_user_id: Some(pubic_user_id_from_token),
-            app_id: None,
-        })
-    }
-}
-
-// todo: I need another struct that actually use this AuthContext to
-// get actual data. like org_id, permissions etc.
-
-struct AccessContext{
-    pub auth_context: AuthContext,
-    organization_id: OrganizationId,
-    user_access_context : Option<UserAccessContext>,
-}
-impl AccessContext {
-    async fn init(auth_context: AuthContext, app_state: AppState)-> anyhow::Result<()> {
-        let AuthContext { public_user_id, .. } = auth_context;
-
-        let user= match public_user_id {
+        let user_access_context = match public_user_id.as_ref() {
             None => None,
             Some(public_user_id) => {
-                let auth_service = AuthService{
-                    app_state,
-                };
-                auth_service.get_user_for_access_context(public_user_id).await?
+                let auth_service = AuthService { app_state };
+                auth_service
+                    .get_user_for_access_context(public_user_id)
+                    .await?
             }
         };
 
-        Ok(())
+        Ok(AccessContext {
+            auth_context: AuthContext {
+                token,
+                access_mode: AppAccessMode::USER,
+                public_user_id,
+                app_id: None,
+            },
+            user_access_context,
+        })
     }
-
 
     fn is_user(&self) -> bool {
         self.user_access_context.is_some()
+    }
+
+
+    pub fn get_current_accessor_id(&self) -> &UserId {
+        &self.user_access_context.as_ref().unwrap().id
     }
 }
