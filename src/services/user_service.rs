@@ -1,8 +1,8 @@
-use crate::AppState;
+use crate::common_types::DatabaseError;
 use crate::repositories::user_repository::UserRepository;
 use crate::repository_traits::user_repository_trait::{CreatedUser, NewUser, UserRepositoryTrait};
 use crate::utils::password_util::{HashedPassword, HashedPasswordGenerationError, PlainPassword};
-use serde::Deserialize;
+use crate::AppState;
 use thiserror::Error;
 
 pub struct RegisterUserInput {
@@ -14,11 +14,11 @@ pub struct RegisterUserInput {
 }
 pub type RegisterUserOutput = CreatedUser;
 
-#[derive(Deserialize, Debug, Error)]
+#[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum RegisterUserError {
     #[error("database error: {0}")]
-    DatabaseError(String),
+    DBError(DatabaseError),
 
     #[error("user with this email already exists: {0}")]
     DuplicateEmail(String),
@@ -52,7 +52,7 @@ impl UserService {
         let existing_user = user_repository
             .get_user_by_email(&register_user_input.email)
             .await
-            .map_err(|e| RegisterUserError::DatabaseError(e.to_string()))?;
+            .map_err(|e| RegisterUserError::DBError(e))?;
 
         if let Some(user) = existing_user {
             return Err(RegisterUserError::DuplicateEmail(user.email));
@@ -69,6 +69,6 @@ impl UserService {
         user_repository
             .create_user(new_user)
             .await
-            .map_err(|e| RegisterUserError::DatabaseError(e.to_string()))
+            .map_err(|e| RegisterUserError::DBError(e))
     }
 }

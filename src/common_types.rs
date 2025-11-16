@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use sqlx::{PgPool, Postgres, Transaction};
 use std::ops::Deref;
+use crate::models::user_model::UserModel;
 
 pub type PrimaryId = i64;
 
@@ -52,3 +53,6 @@ pub struct Password(String);
 
 pub type ShopDB = PgPool;
 pub type DBTransaction = Transaction<'static, Postgres>;
+
+
+

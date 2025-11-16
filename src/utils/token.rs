@@ -7,7 +7,7 @@ use thiserror::Error;
 
 #[derive(Debug, Serialize,Deserialize)]
 pub struct Claims {
-    pub sub: String,
+    pub user_id: String,
     pub exp: usize,
     pub iat: usize,
 }
@@ -41,7 +41,7 @@ impl Token {
         };
 
         let claims = Claims {
-            sub : user_public_id.to_string(),
+            user_id : user_public_id.to_string(),
             exp,
             iat,
         };

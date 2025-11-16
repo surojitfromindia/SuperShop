@@ -38,10 +38,9 @@ pub struct UserLoginHttpError(pub UserLoginError);
 impl IntoResponse for UserLoginHttpError {
     fn into_response(self) -> Response {
         let (status, msg) = match &self.0 {
-            UserLoginError::DatabaseError(m) => (StatusCode::INTERNAL_SERVER_ERROR, m.clone()),
-            UserLoginError::UnknownError => (
+            UserLoginError::TokenError(e) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "unknown error".to_string(),
+                e.to_string(),
             ),
             UserLoginError::InvalidEmail => (
                 StatusCode::BAD_REQUEST,
@@ -50,7 +49,9 @@ impl IntoResponse for UserLoginHttpError {
             UserLoginError::InvalidPassword => (
                 StatusCode::BAD_REQUEST,
                 "incorrect password".to_string(),
-            )
+            ),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error".to_string()),
+
         };
 
         let body = Json(ErrorResponse {

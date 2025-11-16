@@ -48,7 +48,6 @@ pub struct RegisterUserHttpError(pub RegisterUserError);
 impl IntoResponse for RegisterUserHttpError {
     fn into_response(self) -> Response {
         let (status, msg) = match &self.0 {
-            RegisterUserError::DatabaseError(m) => (StatusCode::INTERNAL_SERVER_ERROR, m.clone()),
             RegisterUserError::DuplicateEmail(m) => (StatusCode::CONFLICT, m.clone()),
             RegisterUserError::ValidationError(m) => (StatusCode::BAD_REQUEST, m.clone()),
             RegisterUserError::Unexpected(m) => (StatusCode::INTERNAL_SERVER_ERROR, m.clone()),
