@@ -55,4 +55,8 @@ pub type ShopDB = PgPool;
 pub type DBTransaction<'a> = Transaction<'a, Postgres>;
 
 
+pub struct PublicIdCounter<'a> {
+    pub organization_id: &'a OrganizationId,
+    pub organization_public_id: &'a PublicId,
+}
 

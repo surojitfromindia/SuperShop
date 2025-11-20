@@ -4,6 +4,7 @@ use crate::services::auth_service::UserAccessContext;
 use crate::types::PublicId;
 use crate::utils::token::{Token, TokenVerificationError};
 use crate::{AppState, UserService};
+use std::sync::Arc;
 #[derive(Debug)]
 
 enum AppAccessMode {
@@ -25,11 +26,11 @@ struct AuthContext {
     app_id: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AccessContext {
-    auth_context: AuthContext,
+    auth_context: Arc<AuthContext>,
     // this context will only available if caller of this api is a human
-    user_access_context: Option<UserAccessContext>,
+    user_access_context: Arc<Option<UserAccessContext>>,
 }
 
 impl AccessContext {
@@ -52,13 +53,13 @@ impl AccessContext {
         };
 
         Ok(AccessContext {
-            auth_context: AuthContext {
+            auth_context: Arc::new(AuthContext {
                 token,
                 access_mode: AppAccessMode::USER,
                 public_user_id,
                 app_id: None,
-            },
-            user_access_context,
+            }),
+            user_access_context: Arc::new(user_access_context),
         })
     }
 
@@ -66,8 +67,13 @@ impl AccessContext {
         self.user_access_context.is_some()
     }
 
-
     pub fn get_current_accessor_id(&self) -> &UserId {
-        &self.user_access_context.as_ref().expect("User is expected").id
+        let n = &self
+            .user_access_context
+            .as_ref() // move into the arc
+            .as_ref() // get ref from the option.
+            .expect("No user access context")
+            .id;
+        n
     }
 }

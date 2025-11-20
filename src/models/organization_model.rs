@@ -1,6 +1,5 @@
 use crate::common_types::{CreatedAt, OrganizationId, PublicId, UpdatedAt, UserId};
 
-
 #[derive(Debug, Clone, sqlx::Type)]
 #[sqlx(type_name = "organization_status", rename_all = "snake_case")]
 pub enum OrganizationStatus {
@@ -8,7 +7,7 @@ pub enum OrganizationStatus {
     Deleted,
     Suspended,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, sqlx::FromRow)]
 pub struct OrganizationModel {
     pub id: OrganizationId,
     pub public_id: PublicId,
