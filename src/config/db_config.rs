@@ -17,7 +17,7 @@ pub async fn connect_to_db(db_config: DbConfig<'_>)-> anyhow::Result<ShopDB> {
     Ok(db)
 }
 
-pub async fn start_transaction<'a>(db:&ShopDB) -> anyhow::Result<DBTransaction,DatabaseError> {
+pub async fn start_transaction(db:&ShopDB) -> anyhow::Result<DBTransaction<'_>,DatabaseError> {
     let tx = db.begin().await?;
     Ok(tx)
 }
