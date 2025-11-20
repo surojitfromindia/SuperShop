@@ -52,21 +52,19 @@ impl AuthService {
         let user = user_repository
             .get_user_by_email(&user_login_input.email)
             .await
-            .map_err(|e| UserLoginError::DBError(e))?;
-        if user.is_none() {
-            return Err(UserLoginError::InvalidEmail);
-        }
-
-        let UserModel { id, public_id, .. } = user.unwrap();
+            .map_err(UserLoginError::DBError)?;
+        let user = user.ok_or(UserLoginError::InvalidEmail)?;
+        let UserModel { id, public_id, .. } = user;
 
         // find the credentials
         let user_credential = user_repository
             .get_user_credentials_by_id(&id)
             .await
-            .map_err(|e| UserLoginError::DBError(e))?;
+            .map_err(|e| UserLoginError::DBError(e))?
+            .ok_or(UserLoginError::InvalidPassword)?;
 
         // try to verify the password
-        let hashed_password = user_credential.unwrap().hashed_password;
+        let hashed_password = user_credential.hashed_password;
 
         if !hashed_password.verify(&user_login_input.password) {
             return Err(UserLoginError::InvalidPassword);

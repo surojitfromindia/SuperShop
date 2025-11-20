@@ -27,7 +27,7 @@ schemas
 input/output struct into the service. this struct will be exposed to
 external handlers to implement to and form.
  */
-
+#![deny(clippy::unwrap_used)]
 mod common_types;
 
 mod config;

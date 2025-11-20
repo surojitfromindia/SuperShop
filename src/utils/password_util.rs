@@ -61,7 +61,8 @@ mod tests {
     #[test]
     fn test_password_hashing_and_verification() {
         let plain_password = PlainPassword::new("mysecretpassword".to_string());
-        let hashed_password = HashedPassword::try_from(plain_password).unwrap();
+        let hashed_password = HashedPassword::try_from(plain_password)
+            .expect("Hashed password is expected");
 
         let plain_password_to_verify = PlainPassword::new("mysecretpassword".to_string());
         assert!(hashed_password.verify(&plain_password_to_verify));

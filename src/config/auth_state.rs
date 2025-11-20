@@ -68,6 +68,6 @@ impl AccessContext {
 
 
     pub fn get_current_accessor_id(&self) -> &UserId {
-        &self.user_access_context.as_ref().unwrap().id
+        &self.user_access_context.as_ref().expect("User is expected").id
     }
 }
