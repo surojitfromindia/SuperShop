@@ -29,13 +29,12 @@ impl OrganizationService {
             created_by_user_id: 0,
         }).await?;
 
-        // organization_repository.create_organization(&mut tx, NewOrganization {
-        //     name: organization_create_input.name,
-        //     name_sl: organization_create_input.name_sl,
-        //     created_by_user_id: 0,
-        // }).await?;
-
+        tx.rollback().await?;
+        // todo: create a default branch
+        // todo: add as member
 
         Ok(())
     }
+
+    pub async fn create_default_branch() {}
 }

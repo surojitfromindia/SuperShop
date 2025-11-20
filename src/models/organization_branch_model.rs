@@ -12,7 +12,7 @@ pub enum BranchStatus {
 pub struct OrganizationBranchModel {
     pub id: PrimaryId,
     pub public_id: PublicId,
-    organization_id: OrganizationId,
+    pub organization_id: OrganizationId,
 
     pub name: String,
     pub name_sl: Option<String>,

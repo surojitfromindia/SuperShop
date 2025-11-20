@@ -1,20 +1,21 @@
 -- Add migration script here
 CREATE TYPE role_status AS ENUM ('active', 'deleted', 'suspended');
 
-CREATE TABLE role_and_permission (
-                                     id BIGSERIAL PRIMARY KEY,
-                                     public_id TEXT UNIQUE NOT NULL,
-                                     name TEXT NOT NULL,
-                                     name_sl TEXT NOT NULL,
-                                     permissions JSONB NOT NULL,
-                                     can_edit BOOLEAN NOT NULL DEFAULT FALSE,
-                                     status role_status NOT NULL DEFAULT 'active',
-                                    created_by_user_id bigint not null references users(id),
-                                     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                                     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE role_and_permission
+(
+    id                 BIGSERIAL PRIMARY KEY,
+    public_id          TEXT UNIQUE NOT NULL,
+    name               TEXT        NOT NULL,
+    name_sl            TEXT        NOT NULL,
+    permissions        JSONB       NOT NULL,
+    can_edit           BOOLEAN     NOT NULL DEFAULT FALSE,
+    status             role_status NOT NULL DEFAULT 'active',
+    created_by_user_id bigint      not null references users (id),
+    created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE role_public_counters
+CREATE TABLE _counter_public_id_role
 (
     organization_id        BIGINT       NOT NULL REFERENCES organizations (id),
     last_value             BIGINT       NOT NULL DEFAULT 0,
@@ -29,7 +30,7 @@ DECLARE
     prefix   TEXT;
     next_num BIGINT;
 BEGIN
-    UPDATE role_public_counters
+    UPDATE _counter_public_id_role
     SET last_value = last_value + 1
     WHERE organization_id = org_id
     RETURNING organization_public_id, last_value
@@ -51,6 +52,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_set_role_public_id
-    BEFORE INSERT ON role_and_permission
+    BEFORE INSERT
+    ON role_and_permission
     FOR EACH ROW
 EXECUTE FUNCTION set_role_public_id();

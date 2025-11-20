@@ -2,7 +2,7 @@
 CREATE TYPE branch_status AS ENUM ('active', 'deleted', 'suspended');
 
 
-create table branch_public_counters
+create table _counter_public_id_branch
 (
     organization_id        BIGINT       not null references organizations (id),
     last_value             BIGINT       not null default 0,
@@ -33,7 +33,7 @@ DECLARE
     prefix   TEXT;
     next_num BIGINT;
 begin
-    update branch_public_counters
+    update _counter_public_id_branch
     set last_value= last_value + 1
     where organization_id = org_id
     returning organization_public_id, last_value

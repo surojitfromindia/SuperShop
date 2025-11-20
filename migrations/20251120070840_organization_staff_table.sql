@@ -1,7 +1,7 @@
 -- Add migration script here
-create type organization_staff_status as enum('active','deleted','suspended');
+create type organization_staff_status as enum ('active','deleted','suspended');
 
-create table org_staff_public_counters
+create table _counter_public_id_org_staff
 (
     organization_id        BIGINT       not null references organizations (id),
     last_value             BIGINT       not null default 0,
@@ -9,14 +9,15 @@ create table org_staff_public_counters
     primary key (organization_id)
 );
 
-create table organization_staffs(
-    id bigserial primary key ,
-    name varchar(255) not null ,
-    name_sl varchar(255),
-    status organization_staff_status not null  default  'active',
-    user_id bigint not null references users(id),
-    created_at         timestamptz         NOT NULL DEFAULT NOW(),
-    updated_at         timestamptz         NOT NULL DEFAULT NOW()
+create table organization_staffs
+(
+    id         bigserial primary key,
+    name       varchar(255)              not null,
+    name_sl    varchar(255),
+    status     organization_staff_status not null default 'active',
+    user_id    bigint                    not null references users (id),
+    created_at timestamptz               NOT NULL DEFAULT NOW(),
+    updated_at timestamptz               NOT NULL DEFAULT NOW()
 
 );
 
@@ -27,7 +28,7 @@ DECLARE
     prefix   TEXT;
     next_num BIGINT;
 begin
-    update org_staff_public_counters
+    update _counter_public_id_org_staff
     set last_value= last_value + 1
     where organization_id = org_id
     returning organization_public_id, last_value
